@@ -6,7 +6,28 @@ from argparse import ArgumentParser
 import configparser
 from exceptions import NoImagesException
 from random import * 
+import json
+configFilePath = f'/home/{os.getlogin()}/.config/horizonsthemer/'
+config = configparser.ConfigParser()
 
+if os.path.isdir(configFilePath) is False:
+    os.mkdir(configFilePath)
+    print("Config folder not found, making one...")
+
+if os.path.isfile(f'{configFilePath}config') is False:
+    config['General'] = {
+            "DefaultDuration" : "600",
+            "Paths" : f'["/home/{os.getlogin()}/wallpapers/"]'}
+
+    try:
+        with open(f'{configFilePath}config', 'w') as configfile:
+            config.write(configfile)
+    except FileExistsError:
+        pass
+
+else:
+    config.read(f'{configFilePath}config')
+    config.sections()
 themes = []
 
 """
@@ -39,7 +60,7 @@ def setTheme(imageLocation):
     print(imageLocation)
     os.system(f"wal -i {imageLocation}")
 
-parser = argparse.ArgumentParser()
+parser = ArgumentParser()
 parser.add_argument("--remove", "-r", type=int)
 parser.add_argument("--nameslist", "-n", nargs="+", default=[])
 parser.add_argument("--looping", "-l", action="store_true", 
@@ -49,9 +70,20 @@ parser.add_argument("--specific", "-s", type=int,
 parser.add_argument("--duration", "-d", type=int, 
                     default=config['General']['DefaultDuration'], 
                     help="Time in seconds between cycles if in looping mode.")
-parser.add_argument("--directory", "-dir",
-                    default=config['General']['DefaultDirectory'], 
-                    type=str, help="the directory")
+
 args = parser.parse_args()
+
+if len(args.nameslist) > 0:
+   try:
+       with open(f'{configFilePath}config', 'w') as configfile:
+           config.set('General', 'Paths', json.dumps(args.nameslist))
+           config.write(configfile)
+           print("Set the config file paths")
+           
+   except FileExistsError:
+        pass
+else:
+    print("Using loaded paths")
+    print(json.loads(config['General']['Paths']))
 
 
