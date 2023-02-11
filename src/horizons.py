@@ -59,6 +59,7 @@ check in some other part of the application.
 def setTheme(imageLocation): 
     print(imageLocation)
     os.system(f"wal -i {imageLocation}")
+    os.system(f"feh --bg-scale {imageLocation}")
 
 parser = ArgumentParser()
 parser.add_argument("--remove", "-r", type=int)
@@ -87,5 +88,5 @@ else:
     print(json.loads(config['General']['Paths']))
 
 setThemesFromDirectories(json.loads(config['General']['Paths']))
-
+setTheme(themes[0])
 # ADDED FROM ANOTHER SOURCE
