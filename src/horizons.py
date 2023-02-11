@@ -2,7 +2,7 @@ import os
 import sys
 from glob import glob
 import time
-import argparse
+from argparse import ArgumentParser
 import configparser
 from exceptions import NoImagesException
 from random import * 
@@ -36,10 +36,22 @@ future we might want to have a callback for when this runs, maybe for some
 check in some other part of the application. 
 """
 def setTheme(imageLocation): 
+    print(imageLocation)
     os.system(f"wal -i {imageLocation}")
 
-setThemesFromDirectories(["/home/maeve/wallpapers/", 
-                          "/home/maeve/wallpapers/lofi/"])
+parser = argparse.ArgumentParser()
+parser.add_argument("--remove", "-r", type=int)
+parser.add_argument("--nameslist", "-n", nargs="+", default=[])
+parser.add_argument("--looping", "-l", action="store_true", 
+                    help="Loops the wallpapers")
+parser.add_argument("--specific", "-s", type=int,
+                    help="Specific wallpaper index")
+parser.add_argument("--duration", "-d", type=int, 
+                    default=config['General']['DefaultDuration'], 
+                    help="Time in seconds between cycles if in looping mode.")
+parser.add_argument("--directory", "-dir",
+                    default=config['General']['DefaultDirectory'], 
+                    type=str, help="the directory")
+args = parser.parse_args()
 
-images, length = getImagesContext(themes[0])
-setTheme(images[21]) 
+
