@@ -4,7 +4,7 @@ from glob import glob
 import time
 import argparse
 import configparser
-from exceptions.py import NoImagesException
+from exceptions import NoImagesException
 from random import * 
 
 themes = []
