@@ -50,7 +50,7 @@ def setThemesFromDirectories(directories):
     for directory in directories:
         dirImages, dirLength = getImagesContext(directory)
         themes.append(directory)
-
+        [print(x) for x in dirImages]
 """
 Right now all this does is run the os.system call but at some point in the 
 future we might want to have a callback for when this runs, maybe for some 
@@ -86,4 +86,4 @@ else:
     print("Using loaded paths")
     print(json.loads(config['General']['Paths']))
 
-
+setThemesFromDirectories(json.loads(config['General']['Paths']))
