@@ -87,3 +87,5 @@ else:
     print(json.loads(config['General']['Paths']))
 
 setThemesFromDirectories(json.loads(config['General']['Paths']))
+
+# ADDED FROM ANOTHER SOURCE
