@@ -4,11 +4,10 @@ from glob import glob
 import time
 import argparse
 import configparser
+from exceptions.py import NoImagesException
 from random import * 
 
-# Placeholder exception 
-class NoImagesException(Exception):
-    pass
+themes = []
 
 """
 An "images context" refers to the combination of the images and the length
@@ -22,9 +21,14 @@ def getImagesContext(inputFolder):
     _images = glob(f"{inputFolder}*.png") + glob(f"{inputFolder}*.jpg")
     _length = len(_images)
     if _length < 1:
-        raise NoImagesException(f"No images (.png, .jpg) in {inputFolder}!")
+        raise NoImagesException(inputFolder)
     else:
         return (_images, _length)
+
+def setThemesFromDirectories(directories):
+    for directory in directories:
+        dirImages, dirLength = getImagesContext(directory)
+        themes.append(directory)
 
 """
 Right now all this does is run the os.system call but at some point in the 
@@ -34,5 +38,8 @@ check in some other part of the application.
 def setTheme(imageLocation): 
     os.system(f"wal -i {imageLocation}")
 
-images, length = getImagesContext(directory)
- 
+setThemesFromDirectories(["/home/maeve/wallpapers/", 
+                          "/home/maeve/wallpapers/lofi/"])
+
+images, length = getImagesContext(themes[0])
+setTheme(images[21]) 
