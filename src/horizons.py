@@ -75,7 +75,8 @@ parser.add_argument("--theme", "-t", type=int, default = 0,
 parser.add_argument("--duration", "-d", type=int, 
                     default=config['General']['DefaultDuration'], 
                     help="Time in seconds between cycles if in looping mode.")
-
+parser.add_argument("--query", "-q", help="Lists wallpapers",
+                    action="store_true")
 args = parser.parse_args()
 
 if len(args.nameslist) > 0:
@@ -93,6 +94,8 @@ else:
 
 wallpapers, length = getImagesContext(themes[args.theme])
 
-if args.looping is False and args.specific is not None:
+if args.query is True:
+    [print(f"{ind}: {wallpapers[ind]}") for ind in range(length)]
+elif args.looping is False and args.specific is not None:
     setTheme(wallpapers[args.specific])
 
