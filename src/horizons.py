@@ -46,11 +46,13 @@ def getImagesContext(inputFolder):
     else:
         return (_images, _length)
 
-def setThemesFromDirectories(directories):
+def getThemesFromDirectories(directories):
+    returnVal = []
     for directory in directories:
         dirImages, dirLength = getImagesContext(directory)
-        themes.append(directory)
-        [print(x) for x in dirImages]
+        returnVal.append(directory)
+    
+    return returnVal
 """
 Right now all this does is run the os.system call but at some point in the 
 future we might want to have a callback for when this runs, maybe for some 
@@ -66,8 +68,10 @@ parser.add_argument("--remove", "-r", type=int)
 parser.add_argument("--nameslist", "-n", nargs="+", default=[])
 parser.add_argument("--looping", "-l", action="store_true", 
                     help="Loops the wallpapers")
-parser.add_argument("--specific", "-s", type=int,
+parser.add_argument("--specific", "-s", type=int, default = 0,
                     help="Specific wallpaper index")
+parser.add_argument("--theme", "-t", type=int, default = 0,
+                    help="Specific theme index")
 parser.add_argument("--duration", "-d", type=int, 
                     default=config['General']['DefaultDuration'], 
                     help="Time in seconds between cycles if in looping mode.")
@@ -85,8 +89,10 @@ if len(args.nameslist) > 0:
         pass
 else:
     print("Using loaded paths")
-    print(json.loads(config['General']['Paths']))
+    themes = getThemesFromDirectories(json.loads(config['General']['Paths']))
 
-setThemesFromDirectories(json.loads(config['General']['Paths']))
-setTheme(themes[0])
-# ADDED FROM ANOTHER SOURCE
+wallpapers, length = getImagesContext(themes[args.theme])
+
+if args.looping is False and args.specific is not None:
+    setTheme(wallpapers[args.specific])
+
