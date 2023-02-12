@@ -7,6 +7,8 @@ import configparser
 from exceptions import NoImagesException
 from random import * 
 import json
+import threading
+
 configFilePath = f'/home/{os.getlogin()}/.config/horizonsthemer/'
 config = configparser.ConfigParser()
 
@@ -136,9 +138,25 @@ wallpapers, length = getImagesContext(themes[args.theme])
 # Are we in query mode? 
 settingMode = (args.query is False and len(args.nameslist) == 0)
 
+def setThemeLooping():
+    count = args.specific
+    while True:
+        setTheme(wallpapers[count])
+        if count + 1 is length:
+            count = 0
+        else:
+            count += 1
+        time.sleep(args.duration)
+
 # TODO: Implement rest of Pornographics codebase here
 if args.query is True:
     [print(f"{ind}: {wallpapers[ind]}") for ind in range(length)]
-elif args.looping is False and args.specific is not None and settingMode:
-    setTheme(wallpapers[args.specific])
-
+elif settingMode:
+    if args.looping is False:
+        setTheme(wallpapers[args.specific])
+    elif args.looping is True:
+        try:
+           loopThread = threading.Thread(target=setThemeLooping)
+           loopThread.start()
+        except:
+           print("Could not start looping thread.")
