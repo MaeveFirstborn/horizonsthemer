@@ -78,7 +78,7 @@ check in some other part of the application.
 """
 def setTheme(imageLocation): 
     print(imageLocation)
-    os.system(f"wal -i {imageLocation}")
+    os.system(f"wal -i {imageLocation} > /dev/null")
     os.system(f"feh --bg-scale {imageLocation}")
 
 """
