@@ -148,8 +148,6 @@ def setThemeLooping():
             count += 1
         time.sleep(args.duration)
 
-
-
 # TODO: Implement rest of Pornographics codebase here
 if args.query is True:
     [print(f"{ind}: {wallpapers[ind]}") for ind in range(length)]
