@@ -115,8 +115,7 @@ args = parser.parse_args()
 """
 Determines if we passed in new folders for the themes. This uses JSON to store
 an arbitrarily sized array of strings as one key value for the ConfigParser 
-dict. 
-TODO: Better FileExistsError handling
+dict. TODO: Better FileExistsError handling
 Maybe an interactive prompt? 
 """
 if len(args.nameslist) > 0:
