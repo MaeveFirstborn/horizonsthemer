@@ -1,15 +1,21 @@
 import os
 import sys
-from glob import glob
 import time
-from argparse import ArgumentParser
 import configparser
-from exceptions import NoImagesException
-from random import * 
-import json
 import threading
+import json
+from glob import glob
+from argparse import ArgumentParser
+from exceptions import NoImagesException
 
-configFilePath = f'/home/{os.getlogin()}/.config/horizonsthemer/'
+"""
+Sets the themes (list of directories to pull wallpapers from) as an empty
+list to be appended to later.
+"""
+themes = []
+
+username = os.getlogin().lower()
+configFilePath = f'/home/{username}/.config/horizonsthemer/'
 config = configparser.ConfigParser()
 
 """
@@ -23,7 +29,7 @@ if os.path.isfile(f'{configFilePath}config') is False:
     print(f'{configFilePath}config')
     config['General'] = {
             "DefaultDuration" : "600",
-            "Paths" : f'["/home/{os.getlogin()}/wallpapers/"]',
+            "Paths" : f'["/home/{username}/wallpapers/"]',
             "DefaultTheme" : "0"}
 
     try:
@@ -36,11 +42,6 @@ else:
     config.read(f'{configFilePath}config')
     config.sections()
 
-"""
-Sets the themes (list of directories to pull wallpapers from) as an empty
-list to be appended to later.
-"""
-themes = []
 
 """
 An "images context" refers to the combination of the images and the length
@@ -81,6 +82,16 @@ def setTheme(imageLocation):
     os.system(f"wal -i {imageLocation} > /dev/null")
     os.system(f"feh --bg-scale {imageLocation}")
 
+def setThemeLooping(incomingWallpapers, wpIndex, themeLength, sleepDuration):
+    count = wpIndex
+    while True:
+        setTheme(incomingWallpapers[count])
+        if count + 1 is themeLength:
+            count = 0
+        else:
+            count += 1
+        time.sleep(sleepDuration)
+
 """
 TODO: Refactor this! 
 """
@@ -112,50 +123,49 @@ parser.add_argument("--query", "-q", help="Lists wallpapers",
                     action="store_true")
 args = parser.parse_args()
 
+index = args.specific
+themesIndex = args.theme
+duration = args.duration
+loopmode = args.looping
+query = args.query
+newDirectories = args.nameslist
+
 """
 Determines if we passed in new folders for the themes. This uses JSON to store
 an arbitrarily sized array of strings as one key value for the ConfigParser 
 dict. TODO: Better FileExistsError handling
 Maybe an interactive prompt? 
 """
-if len(args.nameslist) > 0:
+if len(newDirectories) > 0:
    try:
        with open(f'{configFilePath}config', 'w') as configfile:
            config.set('General', 'Paths', json.dumps(args.nameslist))
            config.write(configfile)
-           themes = getThemesFromDirectories(
-                   json.loads(config['General']['Paths']))
    except FileExistsError:
-        pass
+        print("Can't write new lines to config")
 else:
     print("Using loaded paths")
-    themes = getThemesFromDirectories(json.loads(config['General']['Paths']))
+    
+themes = getThemesFromDirectories(json.loads(config['General']['Paths']))
 
 # Gets the master context for the rest of the script. 
-wallpapers, length = getImagesContext(themes[args.theme])
+wallpapers, length = getImagesContext(themes[themesIndex])
+
+wallpapers.sort()
 
 # Are we in query mode? 
-settingMode = (args.query is False and len(args.nameslist) == 0)
-
-def setThemeLooping():
-    count = args.specific
-    while True:
-        setTheme(wallpapers[count])
-        if count + 1 is length:
-            count = 0
-        else:
-            count += 1
-        time.sleep(args.duration)
+settingMode = (query is False and len(newDirectories) == 0)
 
 # TODO: Implement rest of Pornographics codebase here
-if args.query is True:
+if query is True:
     [print(f"{ind}: {wallpapers[ind]}") for ind in range(length)]
 elif settingMode:
     if args.looping is False:
-        setTheme(wallpapers[args.specific])
+        setTheme(wallpapers[index])
     elif args.looping is True:
         try:
-           loopThread = threading.Thread(target=setThemeLooping)
+           loopThread = threading.Thread(target=setThemeLooping,
+                                         args=(wallpapers, index, length, duration))
            loopThread.start()
         except:
            print("Could not start looping thread.")
