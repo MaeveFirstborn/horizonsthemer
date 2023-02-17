@@ -1,6 +1,5 @@
 #!/usr/bin/env python3 
 import os
-import sys
 import time
 import configparser
 import threading
@@ -68,10 +67,15 @@ using the error handling in getImagesContext()
 def getThemesFromDirectories(directories):
     returnVal = []
     for directory in directories:
-        dirImages, dirLength = getImagesContext(directory)
-        returnVal.append(directory)
+        dirLength = getImagesContext(directory)[1]
+        if dirLength < 1: 
+            raise NoImagesException(directory)
+        else:
+            returnVal.append(directory)
+    
     
     return returnVal
+
 
 """
 Right now all this does is run the os.system call but at some point in the 
@@ -81,7 +85,7 @@ check in some other part of the application.
 def setTheme(imageLocation): 
     print(imageLocation)
     os.system(f"wal -i {imageLocation} > /dev/null")
-    os.system(f"feh --bg-scale {imageLocation}")
+    # os.system(f"feh --bg-scale {imageLocation}")
 
 def setThemeLooping(incomingWallpapers, wpIndex, themeLength, sleepDuration):
     count = wpIndex
@@ -166,7 +170,8 @@ elif settingMode:
     elif args.looping is True:
         try:
            loopThread = threading.Thread(target=setThemeLooping,
-                                         args=(wallpapers, index, length, duration))
+                                         args=(wallpapers, 
+                                               index, length, duration))
            loopThread.start()
         except:
            print("Could not start looping thread.")
