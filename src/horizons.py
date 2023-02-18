@@ -102,8 +102,6 @@ TODO: Refactor this!
 """
 parser = ArgumentParser()
 
-# If this is specified, delete the image that is specified (NOT IMPLEMENTED)
-parser.add_argument("--remove", "-r", type=int)
 # If this has arguments passed to it, set the themes in the config file.  
 parser.add_argument("--nameslist", "-n", nargs="+", default=[])
 # If this is true, loop through the theme selected.
@@ -126,6 +124,10 @@ parser.add_argument("--duration", "-d", type=int,
 # list those filenames.
 parser.add_argument("--query", "-q", help="Lists wallpapers",
                     action="store_true")
+
+# If this is chosen, it removes the given selection instead.
+parser.add_argument("--remove", "-r", help="Deletes a given wallpaper",
+                    action="store_true")
 args = parser.parse_args()
 
 index = args.specific
@@ -133,6 +135,7 @@ themesIndex = args.theme
 duration = args.duration
 loopmode = args.looping
 query = args.query
+remove = args.remove
 newDirectories = args.nameslist
 
 """
@@ -164,7 +167,7 @@ settingMode = (query is False and len(newDirectories) == 0)
 # TODO: Implement rest of Pornographics codebase here
 if query is True:
     [print(f"{ind}: {wallpapers[ind]}") for ind in range(length)]
-elif settingMode:
+elif settingMode and remove is False:
     if args.looping is False:
         setTheme(wallpapers[index])
     elif args.looping is True:
@@ -175,3 +178,5 @@ elif settingMode:
            loopThread.start()
         except:
            print("Could not start looping thread.")
+elif settingMode and remove is True:
+    os.system(f"rm {wallpapers[index]}")
